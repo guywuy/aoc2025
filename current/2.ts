@@ -1,37 +1,60 @@
-import { logAnswerCheck, numbersToString, sumInts } from "../utils.ts";
+import { logAnswerCheck } from "../utils.ts";
 
-const text = await Deno.readTextFile("input.txt");
+const text = await Deno.readTextFile("current/input.txt");
 const data = text
   .trim()
   .split("\n")
-  .map((l) => l.split("").map((i) => parseInt(i)));
+  .map((l) => l.split(""));
 
-const tops = data.reduce((collection, line) => {
-  const maxs = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-  let posMax = 0;
+const printGrid = (grid: string[][]) => {
+  console.log(grid.map((r) => r.join("")).join("\n"));
+};
 
-  for (let index = 0; index < maxs.length; index++) {
-    let max = line.at(posMax)!;
-    const searchFrom = posMax;
-    const searchUntil = line.length - (maxs.length - (index + 1));
-    let match = searchFrom;
-    for (let i = searchFrom; i < searchUntil; i++) {
-      const val = line.at(i)!;
-      if (val > max) {
-        max = val;
-        match = i;
+let answer = 0;
+
+const getSurroundings = (grid: string[][], x: number, y: number) => [
+  y > 0
+    ? [
+        grid.at(y - 1)?.at(x - 1),
+        grid.at(y - 1)?.at(x),
+        grid.at(y - 1)?.at(x + 1),
+      ]
+    : [],
+  [grid.at(y)?.at(x + 1), x > 0 ? grid.at(y)?.at(x - 1) : undefined],
+  [
+    grid.at(y + 1)?.at(x + 1),
+    grid.at(y + 1)?.at(x),
+    x > 0 ? grid.at(y + 1)?.at(x - 1) : undefined,
+  ],
+];
+
+let finished = false;
+
+const latestGrid = data.map((row) => [...row]);
+while (!finished) {
+  let removedThisRound = 0;
+  for (let y = 0; y < data.length; y++) {
+    for (let x = 0; x < data[y].length; x++) {
+      const position = latestGrid[y][x];
+      const surrounds = getSurroundings(latestGrid, x, y);
+      const filtered = surrounds.flat().filter((item) => item === "@");
+      const numSpaces = 8 - filtered.length;
+      if (position === "@" && numSpaces > 4) {
+        latestGrid[y][x] = "x";
+        removedThisRound++;
       }
-      posMax = match + 1;
     }
-    maxs[index] = max;
   }
+  printGrid(latestGrid);
+  console.log({ removedThisRound });
+  answer += removedThisRound;
+  if (removedThisRound === 0) {
+    finished = true;
+  }
+}
 
-  return [...collection, parseInt(`${numbersToString(maxs)}`)];
-}, []);
-
-const answer = sumInts(tops);
 console.log("----");
 console.log(answer);
 console.log("----");
 
-logAnswerCheck(answer, 3121910778619);
+logAnswerCheck(answer, 43);

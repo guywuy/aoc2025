@@ -1,5 +1,6 @@
 {
   "tasks": {
-    "start": "deno run --allow-read --watch current/1.ts"
+    "start": "deno run --allow-read --watch current/1.ts",
+    "start2": "deno run --allow-read --watch current/2.ts"
   }
 }
