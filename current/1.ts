@@ -1,6 +1,6 @@
 import { logAnswerCheck } from "../utils.ts";
 
-const text = await Deno.readTextFile("input-test.txt");
+const text = await Deno.readTextFile("current/input-test.txt");
 const data = text
   .trim()
   .split("\n")
@@ -8,34 +8,47 @@ const data = text
 
 let answer = 0;
 
-// Need to change to not access negative [-indices] e.g [-1]
 const getSurroundings = (x: number, y: number) => [
-  [data.at(y - 1)?.at(x - 1), data.at(y - 1)?.at(x), data.at(y - 1)?.at(x + 1)],
-  [data.at(y)?.at(x + 1), data.at(y)?.at(x - 1)],
+  y > 0
+    ? [
+        data.at(y - 1)?.at(x - 1),
+        data.at(y - 1)?.at(x),
+        data.at(y - 1)?.at(x + 1),
+      ]
+    : [],
+  [data.at(y)?.at(x + 1), x > 0 ? data.at(y)?.at(x - 1) : undefined],
   [
     data.at(y + 1)?.at(x + 1),
-    data.at(y + 1)?.at(x + 1),
-    data.at(y + 1)?.at(x - 1),
+    data.at(y + 1)?.at(x),
+    x > 0 ? data.at(y + 1)?.at(x - 1) : undefined,
   ],
 ];
 
+const newGrid = data.map((row) => [...row]);
+
 for (let y = 0; y < data.length; y++) {
   for (let x = 0; x < data[y].length; x++) {
-    // const position = data[y][x];
-    console.log(x, y);
+    const position = data[y][x];
     const surrounds = getSurroundings(x, y);
-    console.log(surrounds);
-    const numSpaces = surrounds.flat().filter((item) => item !== "@").length;
-    if (numSpaces > 4) {
-      console.log('---spaces around', surrounds);
+    const filtered = surrounds.flat().filter((item) => item === "@");
+    const numSpaces = 8 - filtered.length;
+    if (position === "@" && numSpaces > 4) {
+      newGrid[y][x] = "x";
       answer++;
     }
   }
 }
 
-// console.log(grid);
+const printGrid = (grid: string[][]) => {
+  console.log(grid.map((r) => r.join("")).join("\n"));
+};
+
 console.log("----");
 console.log(answer);
+console.log("----");
+printGrid(data);
+console.log(" ");
+printGrid(newGrid);
 console.log("----");
 
 logAnswerCheck(answer, 13);
