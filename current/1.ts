@@ -1,6 +1,6 @@
 import { logAnswerCheck } from "../utils.ts";
 
-const text = await Deno.readTextFile("current/input-test.txt");
+const text = await Deno.readTextFile("current/input.txt");
 const data = text
   .trim()
   .split("\n")
@@ -9,14 +9,14 @@ const data = text
 let answer = 0;
 
 data.forEach((pos, index) => {
-  // for each other line, calc area (x * x2 + y * y2);
-  // set answer as max(answer, result)
-  console.log(pos, index);
   data.forEach((pos2, index2) => {
     if (index !== index2) {
-      // console.log(object);
+      const diffX = Math.abs(pos[0] - pos2[0]) + 1;
+      const diffY = Math.abs(pos[1] - pos2[1]) + 1;
+      const area = diffX * diffY;
+      answer = Math.max(answer, area);
     }
-  })
+  });
 });
 
 console.log("----");
